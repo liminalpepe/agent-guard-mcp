@@ -1,0 +1,17 @@
+{
+  "name": "agent-guard-mcp",
+  "version": "0.2.0",
+  "description": "Verify-before-act safety MCP for AI coding agents: check packages, lockfiles, skill/plugin manifests, and CI workflows before installing or merging.",
+  "type": "module",
+  "bin": { "agent-guard-mcp": "src/mcp-server.mjs" },
+  "main": "src/mcp-server.mjs",
+  "files": ["src", "README.md", "LICENSE", "server.json"],
+  "scripts": {
+    "start": "node src/mcp-server.mjs",
+    "http": "node src/http-server.mjs"
+  },
+  "keywords": ["mcp", "model-context-protocol", "ai-agents", "security", "slopsquat", "typosquat", "supply-chain", "npm", "pypi", "lockfile", "ci", "github-actions"],
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "dependencies": { "@modelcontextprotocol/sdk": "^1.12.0" }
+}
