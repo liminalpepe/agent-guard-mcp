@@ -23,6 +23,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { SERVER_VERSION } from './mcp-server.mjs';
 import { checkPackage } from './check.mjs';
 import { parseLockfile, ecosystemFor } from './lockfile.mjs';
 import { scoreManifest } from './manifest.mjs';
@@ -154,17 +155,18 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/' ) {
     return sendJson(res, 200, {
       service: 'agent-guard',
-      description: 'Verify-before-act safety suite for AI coding agents: check packages, lockfiles, and skill/plugin manifests before installing.',
+      description: 'Verify-before-act safety suite for AI coding agents: check packages, lockfiles, skill/plugin manifests, and CI workflows before installing or merging.',
       tools: {
         check_package: 'GET /check?name=<pkg>&ecosystem=<npm|pypi> — does a package exist + slopsquat/typosquat risk',
         verify_lockfile: 'POST /check-lockfile {lockfile_content, format} — scan a whole lockfile (direct+transitive)',
         score_manifest: 'POST /score-manifest {manifest_type, manifest_content} — poison/backdoor/scope-overreach score 0-100',
+        check_workflow: 'POST /check-workflow {workflow_content, platform} — CI workflow (GitHub Actions/GitLab CI) risk score 0-100',
       },
-      mcp: 'stdio MCP server exposes the same three tools (check_package, verify_lockfile, score_manifest)',
-      free: FREE_MODE, version: '0.2.0',
+      mcp: 'stdio MCP server exposes the same four tools (check_package, verify_lockfile, score_manifest, check_workflow)',
+      free: FREE_MODE, version: SERVER_VERSION,
     });
   }
-  if (url.pathname === '/health') return sendJson(res, 200, { ok: true, service: 'agent-guard', version: '0.2.0' });
+  if (url.pathname === '/health') return sendJson(res, 200, { ok: true, service: 'agent-guard', version: SERVER_VERSION });
   if (url.pathname === '/stats') return sendJson(res, 200, { total_calls: TOTAL, since: STARTED, free: FREE_MODE });
 
   if (url.pathname === '/check') {

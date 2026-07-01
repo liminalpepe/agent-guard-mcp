@@ -5,7 +5,7 @@
 
 > **One line:** Verify-before-act safety for AI agents — check packages, lockfiles, skill manifests, and CI workflows *before* install or merge. **Zero API keys. Zero config.**
 
-**The only MCP server that scores Cursor/Claude skills + GitHub Actions workflows**, not just npm dependencies.
+**Scores Cursor/Claude skill manifests + GitHub Actions workflows** — not just npm dependencies.
 
 | When you… | Call |
 |-----------|------|

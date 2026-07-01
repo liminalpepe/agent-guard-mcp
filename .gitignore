@@ -1,3 +1,5 @@
 node_modules/
 data/
 *.log
+deploy-mcp-http.sh
+deploy*.sh

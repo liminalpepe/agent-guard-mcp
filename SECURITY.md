@@ -22,7 +22,8 @@ patched — pin a specific version (e.g. `@0.2.1`) and update deliberately.
 ## Detection caveats
 
 agent-guard uses heuristics (existence checks, typo-distance, a maintained
-slop/threat corpus, known-CVE signatures). It reduces risk; it is not a
-guarantee. A verdict of `OK` means no known signal fired, not that a package is
+slop/threat corpus, and known-compromised-artifact signatures such as the
+tj-actions / reviewdog CI incidents). It is not a CVE database and does not
+replace `npm audit` / OSV. It reduces risk; it is not a guarantee. A verdict of `OK` means no known signal fired, not that a package is
 proven safe. Always keep a human in the loop for `SUSPICIOUS` / `REVIEW` /
 `DANGER` / `BLOCK` verdicts.
