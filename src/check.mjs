@@ -6,7 +6,10 @@
 const TOP_NPM = ["react","react-dom","lodash","axios","express","next","vue","typescript","webpack","chalk","commander","dotenv","jest","eslint","prettier","moment","uuid","redux","node-fetch","cors","mongoose","ws","yargs","glob","semver","tailwindcss","vite","esbuild","zod","prisma","puppeteer","playwright","openai","langchain","dayjs","ioredis","pg","knex"];
 const TOP_PYPI = ["requests","numpy","pandas","flask","django","fastapi","pydantic","sqlalchemy","boto3","scipy","matplotlib","pytest","pillow","beautifulsoup4","scikit-learn","tensorflow","torch","transformers","openai","langchain","aiohttp","httpx","click","rich","tqdm","pyyaml","python-dotenv","celery","redis","huggingface_hub","uvicorn","starlette","poetry"];
 // Seed corpus of known LLM-hallucinated / slopsquat names (compounds over time per query):
-const SLOP_SEED = ["huggingface-cli","react-codeshift","requests-oauth","python-sqlite","node-ffmpeg","openai-python","gpt-3","langchain-community-tools","fast-csv-parser","pandas-utils","torch-utils"];
+const SLOP_SEED = ["huggingface-cli","react-codeshift","requests-oauth","python-sqlite","node-ffmpeg","openai-python","gpt-3","langchain-community-tools","fast-csv-parser","pandas-utils","torch-utils",
+  // threat-corpus seed-2026-07-01 (curated high-confidence slop / typosquats)
+  "jscodeshift-react","react-use-hooks","next-auth-utils","lodash-utils","lodash-deep-merge","@types/react-dom-utils","@types/node-utils","crossenv","cross-env.js","colourama",
+  "python-dotenv-utils","django-rest-framework-utils","openai-helper","anthropic-sdk-utils","huggingface-hub-utils","numpy-array-utils","pandas-dataframe-utils","axios-retry-wrapper","eslint-config-airbnb-extended","sharp-image-utils"];
 
 function lev(a,b){const m=a.length,n=b.length;const d=Array.from({length:m+1},(_,i)=>{const r=new Array(n+1).fill(0);r[0]=i;return r;});for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n];}
 async function j(url){try{const r=await fetch(url,{signal:AbortSignal.timeout(6000)});if(!r.ok)return{status:r.status};return{status:200,body:await r.json()};}catch(e){return{status:0,err:e.message};}}

@@ -27,6 +27,7 @@ import { checkPackage } from './check.mjs';
 import { parseLockfile, ecosystemFor } from './lockfile.mjs';
 import { scoreManifest } from './manifest.mjs';
 import { scanWorkflow } from './workflow.mjs';
+import { gateDetail, paywallActive } from './x402.mjs';
 
 const PORT = Number(process.env.PORT) || 8402;
 const FREE_MODE = (process.env.FREE_MODE ?? 'true') !== 'false';
@@ -99,8 +100,11 @@ async function handleManifest(req, res) {
   logCall({ ts: new Date().toISOString(), kind: 'manifest', manifest_type, risk: r.risk_score, verdict: r.overall_verdict, flags: r.flag_count,
     ip: (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim(), ua: (req.headers['user-agent'] || '').slice(0, 200) });
   const { _findings, ...pub } = r;
-  const body = { ...pub, free_mode: FREE_MODE, scanned_at: new Date().toISOString() };
-  if (!FREE_MODE) body.findings = _findings; // full findings are the paywalled detail; free tier gets score+verdict only
+  const wantsDetail = /[?&]detail=full/.test(req.url || '');
+  const gate = await gateDetail(req, '/score-manifest?detail=full', wantsDetail);
+  if (gate.challenge) return sendJson(res, 402, { error: 'payment required for full report', ...gate.challenge });
+  const body = { ...pub, paywall: paywallActive(), scanned_at: new Date().toISOString() };
+  if (gate.allow) { body.findings = _findings; if (gate.paid) body.payment_receipt = gate.receipt; }
   return sendJson(res, 200, body);
 }
 
@@ -115,8 +119,11 @@ async function handleWorkflow(req, res) {
   logCall({ ts: new Date().toISOString(), kind: 'workflow', platform, risk: r.risk_score, verdict: r.overall_verdict, flags: r.flag_count,
     ip: (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim(), ua: (req.headers['user-agent'] || '').slice(0, 200) });
   const { _findings, ...pub } = r;
-  const body = { ...pub, free_mode: FREE_MODE, scanned_at: new Date().toISOString() };
-  if (!FREE_MODE) body.findings = _findings;
+  const wantsDetail = /[?&]detail=full/.test(req.url || '');
+  const gate = await gateDetail(req, '/check-workflow?detail=full', wantsDetail);
+  if (gate.challenge) return sendJson(res, 402, { error: 'payment required for full report', ...gate.challenge });
+  const body = { ...pub, paywall: paywallActive(), scanned_at: new Date().toISOString() };
+  if (gate.allow) { body.findings = _findings; if (gate.paid) body.payment_receipt = gate.receipt; }
   return sendJson(res, 200, body);
 }
 
