@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "agent-guard": {
+      "command": "npx",
+      "args": ["-y", "@liminallablibs/agent-guard-mcp@0.2.1"]
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "@liminallablibs/agent-guard-mcp",
   "mcpName": "io.github.liminalpepe/agent-guard-mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Verify-before-act safety MCP for AI coding agents: check packages, lockfiles, skill/plugin manifests, and CI workflows before installing or merging.",
   "type": "module",
   "bin": { "agent-guard-mcp": "src/mcp-server.mjs" },
@@ -9,9 +9,10 @@
   "files": ["src", "README.md", "LICENSE", "server.json"],
   "scripts": {
     "start": "node src/mcp-server.mjs",
-    "http": "node src/http-server.mjs"
+    "http": "node src/http-server.mjs",
+    "test": "node --test test/smoke.test.mjs"
   },
-  "keywords": ["mcp", "model-context-protocol", "ai-agents", "security", "slopsquat", "typosquat", "supply-chain", "npm", "pypi", "lockfile", "ci", "github-actions"],
+  "keywords": ["mcp", "model-context-protocol", "ai-agents", "ai-coding-agent", "cursor", "claude-code", "security", "supply-chain", "supply-chain-security", "dependency-check", "slopsquat", "typosquat", "hallucinated-package", "npm", "pypi", "lockfile", "github-actions", "ci-security", "skill-security", "verify-before-act", "pre-install"],
   "license": "MIT",
   "engines": { "node": ">=18" },
   "dependencies": { "@modelcontextprotocol/sdk": "^1.12.0" }

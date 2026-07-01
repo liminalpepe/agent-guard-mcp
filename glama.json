@@ -1,4 +1,8 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "maintainers": ["liminalpepe"]
+  "maintainers": ["liminalpepe"],
+  "displayName": "Agent Guard — verify-before-act safety",
+  "description": "Supply-chain safety MCP for AI coding agents: pre-install npm/PyPI checks, lockfile scans, skill/plugin manifest scoring, and CI workflow validation. Zero API keys. Call before npm install, skill install, or merging .github/workflows changes.",
+  "categories": ["security", "developer-tools"],
+  "keywords": ["supply-chain", "typosquat", "slopsquat", "npm", "pypi", "lockfile", "github-actions", "cursor-skill", "mcp-security"]
 }

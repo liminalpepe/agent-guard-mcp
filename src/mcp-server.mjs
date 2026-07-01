@@ -2,10 +2,11 @@
 /**
  * Agent-native package/plugin safety — MCP server (stdio).
  *
- * Exposes THREE verify-before-act tools an AI agent should call before it acts:
+ * Exposes FOUR verify-before-act tools an AI agent should call before it acts:
  *   - check_package    : is this npm/PyPI package real + is it a slopsquat/typosquat?
  *   - verify_lockfile  : scan a whole lockfile (direct + transitive) before install
  *   - score_manifest   : score a skill/plugin/MCP manifest for poison/backdoor/scope-overreach
+ *   - check_workflow   : validate CI workflow YAML (GitHub Actions / GitLab CI) before merge
  *
  * stdout is reserved for the MCP protocol — all logging goes to stderr.
  * Run: node src/mcp-server.mjs
@@ -20,7 +21,7 @@ import { scoreManifest } from './manifest.mjs';
 import { scanWorkflow } from './workflow.mjs';
 
 export const SERVER_NAME = 'agent-guard';
-export const SERVER_VERSION = '0.2.0';
+export const SERVER_VERSION = '0.2.1';
 
 const LOCK_FORMATS = ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'poetry.lock', 'requirements.txt'];
 const MANIFEST_TYPES = ['cursor-skill', 'claude-skill', 'mcp-server', 'smithery-package'];
@@ -28,7 +29,7 @@ const MANIFEST_TYPES = ['cursor-skill', 'claude-skill', 'mcp-server', 'smithery-
 const TOOLS = [
   {
     name: 'check_package',
-    description: 'Check whether a single package exists and assess slopsquat/typosquat risk BEFORE installing it. Returns OK/SUSPICIOUS/DANGER + risk + flags. Nonexistent names are likely hallucinated; names 1-2 chars from a popular package are likely typosquats.',
+    description: 'Pre-install supply-chain gate for a single npm or PyPI package. Call BEFORE running npm install, pip install, or adding a dependency to package.json. Returns OK | SUSPICIOUS | DANGER (DANGER ~= NO-GO) with typosquat/slopsquat/hallucination flags. Read-only: queries public registries only; does not install anything. Do NOT use for full lockfile audits (use verify_lockfile) or CVE-only scans (use npm audit/OSV). If verdict is SUSPICIOUS or DANGER, stop and ask the user before installing.',
     inputSchema: { type: 'object', properties: {
       name: { type: 'string', description: 'Package name, e.g. "huggingface-cli".' },
       ecosystem: { type: 'string', enum: ['npm', 'pypi'], default: 'npm' },
@@ -36,7 +37,7 @@ const TOOLS = [
   },
   {
     name: 'verify_lockfile',
-    description: 'Scan an entire lockfile (direct + transitive deps) for hallucinated / typosquatted / suspicious packages BEFORE running install. Call this instead of trusting an LLM-generated lockfile.',
+    description: 'Scan an entire lockfile (direct + transitive deps) BEFORE npm/pip/yarn/pnpm install. Call when the user pastes or generates a lockfile, or before trusting an LLM-written package-lock.json / yarn.lock / pnpm-lock.yaml / poetry.lock / requirements.txt. Returns per-package OK | SUSPICIOUS | DANGER counts and flagged names. Read-only; pass raw file text, not a filesystem path. Do NOT use for a single new package (use check_package) or CI YAML (use check_workflow).',
     inputSchema: { type: 'object', properties: {
       lockfile_content: { type: 'string', description: 'Raw lockfile text (not a path).' },
       format: { type: 'string', enum: LOCK_FORMATS },
@@ -45,7 +46,7 @@ const TOOLS = [
   },
   {
     name: 'score_manifest',
-    description: 'Score a Cursor/Claude skill or MCP/Smithery plugin manifest for poison/backdoor signatures, credential scope over-reach, and drift BEFORE installing a third-party agent extension. Returns risk 0-100 + install recommendation (PROCEED/REVIEW/BLOCK).',
+    description: 'Score a third-party AI-agent extension manifest (skill/plugin manifest audit) BEFORE install. Call BEFORE installing a Cursor skill, Claude skill, MCP server package, or Smithery plugin. Detects poison/backdoor signatures, credential scope over-reach, and drift vs an approved baseline. Returns risk 0-100 and PROCEED | REVIEW | BLOCK. Supports manifest_type: cursor-skill | claude-skill | mcp-server | smithery-package. Read-only. Do NOT use for npm package names alone (use check_package). If BLOCK, refuse install until the user reviews findings. This skill/plugin coverage is unique to agent-guard.',
     inputSchema: { type: 'object', properties: {
       manifest_type: { type: 'string', enum: MANIFEST_TYPES },
       manifest_content: { type: 'string', description: 'Primary manifest text (SKILL.md, plugin.json, smithery.yaml, package.json).' },
@@ -55,7 +56,7 @@ const TOOLS = [
   },
   {
     name: 'check_workflow',
-    description: 'Validate a CI workflow (GitHub Actions / GitLab CI YAML) BEFORE merging a PR that touches it. Flags mutable action pins, known-compromised actions, untrusted owners, curl|bash fetch-exec, pull_request_target pwn-requests, and secret exposure. Returns risk 0-100 + merge recommendation (PROCEED/REVIEW/BLOCK).',
+    description: 'Validate CI workflow YAML (GitHub Actions / GitLab CI) BEFORE merging a PR that touches .github/workflows or GitLab CI. Call when reviewing or authoring CI pipelines. Flags mutable action pins (@v1), known-compromised actions, untrusted owners, curl|bash fetch-exec, pull_request_target pwn-request patterns, and secret exposure. Returns risk 0-100 and PROCEED | REVIEW | BLOCK. Read-only. Do NOT use for dependency lockfiles (use verify_lockfile). Default platform: github-actions. CI-workflow coverage is unique to agent-guard.',
     inputSchema: { type: 'object', properties: {
       workflow_content: { type: 'string', description: 'Raw CI workflow YAML text.' },
       platform: { type: 'string', enum: ['github-actions', 'gitlab-ci'], default: 'github-actions' },
@@ -109,7 +110,7 @@ export function createServer() {
 async function main() {
   const server = createServer();
   await server.connect(new StdioServerTransport());
-  console.error(`${SERVER_NAME} v${SERVER_VERSION} running via stdio (3 tools)`);
+  console.error(`${SERVER_NAME} v${SERVER_VERSION} running via stdio (4 tools)`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

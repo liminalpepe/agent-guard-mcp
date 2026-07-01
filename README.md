@@ -1,6 +1,20 @@
 # agent-guard-mcp
 
-**Verify-before-act safety tools for AI coding agents.** Call these *before* installing a dependency, merging a CI change, or installing a third-party skill/plugin — so an agent refuses hallucinated packages, typosquats, poisoned manifests, and compromised CI actions.
+[![npm](https://img.shields.io/npm/v/@liminallablibs/agent-guard-mcp)](https://www.npmjs.com/package/@liminallablibs/agent-guard-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+> **One line:** Verify-before-act safety for AI agents — check packages, lockfiles, skill manifests, and CI workflows *before* install or merge. **Zero API keys. Zero config.**
+
+**The only MCP server that scores Cursor/Claude skills + GitHub Actions workflows**, not just npm dependencies.
+
+| When you… | Call |
+|-----------|------|
+| `npm install foo` / agent suggests a new dep | `check_package` |
+| Review an LLM-generated lockfile | `verify_lockfile` |
+| Install a Cursor skill or MCP plugin | `score_manifest` |
+| Merge a PR touching `.github/workflows/*` | `check_workflow` |
+
+Call these *before* installing a dependency, merging a CI change, or installing a third-party skill/plugin — so an agent refuses hallucinated packages, typosquats, poisoned manifests, and compromised CI actions.
 
 Exposes four MCP tools (also available as a plain HTTP service):
 
@@ -20,9 +34,22 @@ AI agents routinely hallucinate package names (slopsquatting), trust LLM-generat
 ```json
 {
   "mcpServers": {
-    "agent-guard": { "command": "npx", "args": ["-y", "@liminallablibs/agent-guard-mcp"] }
+    "agent-guard": { "command": "npx", "args": ["-y", "@liminallablibs/agent-guard-mcp@0.2.1"] }
   }
 }
+```
+
+## Agent rule (paste into Cursor Rules / CLAUDE.md)
+
+> Before installing any npm/PyPI package, running install from a lockfile, installing a third-party skill/MCP plugin, or merging CI workflow changes, call the agent-guard MCP tools (`check_package`, `verify_lockfile`, `score_manifest`, `check_workflow`). If verdict is SUSPICIOUS, REVIEW, or BLOCK/DANGER, stop and show findings to the user — do not proceed.
+
+## Quick demo
+
+```bash
+npx -y @liminallablibs/agent-guard-mcp@0.2.1   # MCP clients spawn this via npx
+# HTTP mirror:
+npm run http && curl "http://localhost:8402/check?name=reactt&ecosystem=npm"
+# → DANGER — typosquat of "react"
 ```
 
 Or run directly:
