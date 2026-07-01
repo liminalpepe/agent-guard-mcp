@@ -20,7 +20,7 @@ AI agents routinely hallucinate package names (slopsquatting), trust LLM-generat
 ```json
 {
   "mcpServers": {
-    "agent-guard": { "command": "npx", "args": ["-y", "agent-guard-mcp"] }
+    "agent-guard": { "command": "npx", "args": ["-y", "@liminallablibs/agent-guard-mcp"] }
   }
 }
 ```

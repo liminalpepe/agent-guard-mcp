@@ -1,5 +1,5 @@
 {
-  "name": "agent-guard-mcp",
+  "name": "@liminallablibs/agent-guard-mcp",
   "mcpName": "io.github.liminalpepe/agent-guard-mcp",
   "version": "0.2.0",
   "description": "Verify-before-act safety MCP for AI coding agents: check packages, lockfiles, skill/plugin manifests, and CI workflows before installing or merging.",
