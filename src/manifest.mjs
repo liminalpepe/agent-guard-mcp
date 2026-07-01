@@ -35,13 +35,6 @@ const SIG = {
     [/-----BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY-----/, 'CRITICAL', 45, 'embedded private key'],
     [/postmark|smtp[_-]?pass|mailgun/i, 'LOW', 8, 'mail-credential reference'],
   ],
-  // threat-corpus seed-2026-07-01: tool-poisoning / prompt-injection / drift
-  toolpoison: [
-    [/ignore\s+(all\s+)?(previous|prior)\s+instructions|disregard\s+(the\s+)?system\s+prompt/i, 'CRITICAL', 40, 'prompt-injection: instruction override in manifest/description'],
-    [/do\s+not\s+(tell|inform|reveal|mention)\s+(the\s+)?user/i, 'CRITICAL', 40, 'concealment: hides actions from the user'],
-    [/[​-‍﻿­]/, 'HIGH', 25, 'zero-width / soft-hyphen homoglyph smuggling in text'],
-    [/(post|pre)install["'\s:]+[^\n]{0,40}(curl|wget|https?:\/\/)/i, 'CRITICAL', 40, 'lifecycle script phone-home (postinstall curl/http)'],
-  ],
 };
 const URL_RE = /https?:\/\/([a-z0-9.-]+)/gi;
 const ENV_RE = /process\.env\.([A-Z0-9_]+)|(?:^|\n)\s*([A-Z][A-Z0-9_]{2,})\s*[:=]/g;

@@ -1,4 +1,4 @@
-// CI Workflow Action-Integrity Validator (cycle-4 pick, 85).
+// CI Workflow Action-Integrity Validator.
 // An agent calls this before merging a PR that touches CI workflows. Parses `uses:` actions,
 // flags mutable pins, known-compromised actions, untrusted owners, and fetch-and-exec / secret-exposure
 // patterns. Maintained compromised-action corpus is the compounding moat.
@@ -12,9 +12,8 @@ const GOOD_OWNERS = new Set([
 
 // Seed compromised/risky corpus (name-prefix → note, severity). Compounds per real incident.
 const COMPROMISED = [
-  [/^tj-actions\//i, 'CRITICAL', 'tj-actions org compromised — CVE-2025-30066 (Mar 2025) tag-repoint leaked GITHUB_TOKEN/secrets; watchlist until per-repo clearance'],
-  [/^reviewdog\/action-setup/i, 'CRITICAL', 'reviewdog/action-setup — CVE-2025-30154; upstream of the tj-actions chain (PAT leak)'],
-  [/^reviewdog\//i, 'MEDIUM', 'reviewdog org — chain-adjacent to CVE-2025-30154; force full-SHA pin'],
+  [/^tj-actions\/changed-files/i, 'CRITICAL', 'tj-actions/changed-files supply-chain compromise (Mar 2025) — leaked CI secrets via mutated tags'],
+  [/^reviewdog\/action-setup/i, 'HIGH', 'reviewdog/action-setup implicated in the 2025 tag-mutation incident chain'],
 ];
 
 const SEV = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
@@ -47,9 +46,6 @@ export function scanWorkflow(content, platform = 'github-actions') {
     // untrusted owner
     if (!GOOD_OWNERS.has(owner)) push('untrusted_owner', 'LOW', 6, `${name}: owner "${owner}" not in known-good allowlist — review reputation`, line, 'owner-allowlist');
   }
-
-  // 1b) known-malicious commit SHA (tj-actions CVE-2025-30066 payload)
-  if (/0e58ed8671d6b60d0890c21b07f8835ace038e67/i.test(text)) push('compromised_action', 'CRITICAL', 45, 'pinned to known-malicious commit 0e58ed8… (tj-actions CVE-2025-30066)', null, 'bad-sha');
 
   // 2) fetch-and-exec in run: steps
   if (/(curl|wget)\s+[^\n|]*\|\s*(ba)?sh/i.test(text)) push('fetch_exec', 'CRITICAL', 40, 'workflow pipes a remote script into a shell (curl|bash)', null, 'fetch-exec');
