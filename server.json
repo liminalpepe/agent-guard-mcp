@@ -1,16 +1,21 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.liminalpepe/agent-guard-mcp",
-  "description": "Verify-before-act safety tools for AI coding agents: check packages, lockfiles, skill/plugin manifests, and CI workflows before installing or merging.",
+  "description": "Verify-before-act safety checks for AI agents: packages, lockfiles, manifests, CI workflows.",
   "version": "0.2.1",
-  "repository": { "url": "https://github.com/liminalpepe/agent-guard-mcp", "source": "github" },
+  "repository": {
+    "url": "https://github.com/liminalpepe/agent-guard-mcp",
+    "source": "github"
+  },
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@liminallablibs/agent-guard-mcp",
       "version": "0.2.1",
-      "transport": { "type": "stdio" }
+      "transport": {
+        "type": "stdio"
+      }
     }
   ]
 }
